@@ -1,13 +1,13 @@
 import {ICelestialBody} from "./Interfaces/ICelestialBody";
 import {ICanvas} from "./Interfaces/ICanvas";
-import {ICoordinates} from "./Interfaces/ICoordinates";
+import {IVector} from "./Interfaces/IVector";
 import {IMotionStrategy} from "./Interfaces/IMotionStrategy";
 
 export class Simulator {
     readonly G: number = 6.67430e-11;
     private elapsedTime: number = 0;
-    private _translate: ICoordinates = {x: 0, y: 0};
-    public _lastDragPoint: ICoordinates = {x: 0, y: 0};
+    private _translate: IVector = {x: 0, y: 0};
+    public _lastDragPoint: IVector = {x: 0, y: 0};
     public dt: number = 3600;
     public focus: number = 0;
     public scale: number = 1e10;
@@ -54,8 +54,8 @@ export class Simulator {
         this.elapsedTime += this.dt / (60 * 60 * 24);
     }
 
-    private calculateCanvasTranslate(): ICoordinates {
-        const canvasDimensions: ICoordinates = this.canvas.getDimensions();
+    private calculateCanvasTranslate(): IVector {
+        const canvasDimensions: IVector = this.canvas.getDimensions();
 
         return {
             x: (canvasDimensions.x / 2 - this.bodies[this.focus].position.x / this.scale) + this._translate.x,

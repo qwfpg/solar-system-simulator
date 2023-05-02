@@ -1,16 +1,16 @@
-import {ICoordinates} from "./ICoordinates";
+import {IVector} from "./IVector";
 
 export interface ICelestialBody {
     name: string;
-    velocity: ICoordinates;
-    position: ICoordinates;
-    acceleration?: ICoordinates;
+    velocity: IVector;
+    position: IVector;
+    acceleration?: IVector;
     mass: number;
     radius: number;
     color: string;
     scale: number;
 
-    updatePosition(position: ICoordinates): void
-    updateAcceleration(acceleration: ICoordinates): void;
-    updateVelocity(velocity: ICoordinates): void;
+    updatePosition(position: IVector): void
+    updateAcceleration(acceleration: IVector): void;
+    updateVelocity(velocity: IVector): void;
 }

@@ -1,5 +1,5 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
-import {ICoordinates} from "../Interfaces/ICoordinates";
+import {IVector} from "../Interfaces/IVector";
 
 export class RungeKuttaSolver {
     private G = 6.67430e-11;
@@ -15,19 +15,19 @@ export class RungeKuttaSolver {
 
     }
 
-    private computePosition(body: ICelestialBody, dt: number): ICoordinates {
+    private computePosition(body: ICelestialBody, dt: number): IVector {
         const x = body.position.x + body.velocity.x * dt + 0.5 * body.acceleration.x * dt * dt;
         const y = body.position.y + body.velocity.y * dt + 0.5 * body.acceleration.y * dt * dt;
         return {x, y}
     }
 
-    private computeVelocity(body: ICelestialBody, dt: number): ICoordinates {
+    private computeVelocity(body: ICelestialBody, dt: number): IVector {
         const x = body.velocity.x + body.acceleration.x * dt;
         const y = body.velocity.y + body.acceleration.y * dt;
         return {x, y};
     }
 
-    private computeAcceleration(body: ICelestialBody, celestialBodies: ICelestialBody[]): ICoordinates {
+    private computeAcceleration(body: ICelestialBody, celestialBodies: ICelestialBody[]): IVector {
         let x = 0;
         let y = 0;
 

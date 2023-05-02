@@ -1,11 +1,11 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
-import {ICoordinates} from "../Interfaces/ICoordinates";
+import {IVector} from "../Interfaces/IVector";
 import {ICelestialBodyParameters} from "../Interfaces/ICelestialBodyParameters";
 
 export class CelestialBody implements ICelestialBody {
-    private readonly _velocity: ICoordinates;
-    private readonly _position: ICoordinates;
-    private readonly _acceleration?: ICoordinates;
+    private readonly _velocity: IVector;
+    private readonly _position: IVector;
+    private readonly _acceleration?: IVector;
     private readonly _name: string;
     private readonly _mass: number;
     private readonly _radius: number;
@@ -13,15 +13,15 @@ export class CelestialBody implements ICelestialBody {
     scale: number;
 
     constructor(parameters: ICelestialBodyParameters) {
-        const velocity: ICoordinates = {
+        const velocity: IVector = {
             x: parameters.vx,
             y: parameters.vy
         };
-        const position: ICoordinates = {
+        const position: IVector = {
             x: parameters.x,
             y: parameters.y
         }
-        const acceleration: ICoordinates = {
+        const acceleration: IVector = {
             x: 0,
             y: 0
         };
@@ -34,17 +34,17 @@ export class CelestialBody implements ICelestialBody {
         this._name = parameters.name;
     }
 
-    public updateAcceleration(acceleration: ICoordinates): void {
+    public updateAcceleration(acceleration: IVector): void {
         this._acceleration.x = acceleration.x;
         this._acceleration.y = acceleration.y;
     }
 
-    public updatePosition(position: ICoordinates): void {
+    public updatePosition(position: IVector): void {
         this._position.x = position.x;
         this._position.y = position.y;
     }
 
-    public updateVelocity(velocity: ICoordinates): void {
+    public updateVelocity(velocity: IVector): void {
         this._velocity.x = velocity.x;
         this._velocity.y = velocity.y;
     }
@@ -65,15 +65,15 @@ export class CelestialBody implements ICelestialBody {
         return this._color;
     }
 
-    get velocity(): ICoordinates {
+    get velocity(): IVector {
         return this._velocity;
     }
 
-    get position(): ICoordinates {
+    get position(): IVector {
         return this._position;
     }
 
-    get acceleration(): ICoordinates {
+    get acceleration(): IVector {
         return this._acceleration;
     }
 }

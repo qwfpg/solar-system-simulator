@@ -1,12 +1,12 @@
 import {ICelestialBody} from "./ICelestialBody";
-import {ICoordinates} from "./ICoordinates";
+import {IVector} from "./IVector";
 
 export interface ICanvas {
     draw(
         bodies: ICelestialBody[],
-        translate: ICoordinates,
+        translate: IVector,
         scale: number
     ): void;
 
-    getDimensions(): ICoordinates
+    getDimensions(): IVector
 }

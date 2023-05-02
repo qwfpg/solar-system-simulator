@@ -1,5 +1,5 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
-import {ICoordinates} from "../Interfaces/ICoordinates";
+import {IVector} from "../Interfaces/IVector";
 import {ICanvas} from "../Interfaces/ICanvas";
 
 export class Canvas implements ICanvas {
@@ -9,7 +9,7 @@ export class Canvas implements ICanvas {
     ) {
     }
 
-    public getDimensions(): ICoordinates {
+    public getDimensions(): IVector {
         return {
             x: this.canvas.width,
             y: this.canvas.height
@@ -17,8 +17,8 @@ export class Canvas implements ICanvas {
     }
 
     public draw(
-        bodies: Array<ICelestialBody>,
-        translate: ICoordinates,
+        bodies: ICelestialBody[],
+        translate: IVector,
         scale: number
     ): void {
         this.clearCanvas();
