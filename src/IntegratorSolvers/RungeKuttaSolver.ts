@@ -1,11 +1,35 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
+import {ICoordinates} from "../Interfaces/ICoordinates";
 
 export class RungeKuttaSolver {
     private G = 6.67430e-11;
 
-    computeAcceleration(body: ICelestialBody, celestialBodies: ICelestialBody[], dt): void {
-        let ax = 0;
-        let ay = 0;
+    step(body: ICelestialBody, celestialBodies: ICelestialBody[], dt): void {
+        const acceleration = this.computeAcceleration(body, celestialBodies);
+        const position = this.computePosition(body, dt);
+        const velocity = this.computeVelocity(body, dt);
+
+        body.updateAcceleration(acceleration)
+        body.updatePosition(position);
+        body.updateVelocity(velocity);
+
+    }
+
+    private computePosition(body: ICelestialBody, dt: number): ICoordinates {
+        const x = body.position.x + body.velocity.x * dt + 0.5 * body.acceleration.x * dt * dt;
+        const y = body.position.y + body.velocity.y * dt + 0.5 * body.acceleration.y * dt * dt;
+        return {x, y}
+    }
+
+    private computeVelocity(body: ICelestialBody, dt: number): ICoordinates {
+        const x = body.velocity.x + body.acceleration.x * dt;
+        const y = body.velocity.y + body.acceleration.y * dt;
+        return {x, y};
+    }
+
+    private computeAcceleration(body: ICelestialBody, celestialBodies: ICelestialBody[]): ICoordinates {
+        let x = 0;
+        let y = 0;
 
         for (const otherBody of celestialBodies) {
             if (body === otherBody) continue;
@@ -15,28 +39,10 @@ export class RungeKuttaSolver {
             const dy: number = otherBody.position.y - body.position.y;
             const distance: number = Math.sqrt(dx * dx + dy * dy);
 
-            ax += (force * dx / distance) / body.mass;
-            ay += (force * dy / distance) / body.mass;
+            x += (force * dx / distance) / body.mass;
+            y += (force * dy / distance) / body.mass;
         }
-        body.updateAcceleration({
-            x: ax,
-            y: ay
-        })
-        body.updatePosition({
-            x:
-                body.position.x +
-                body.velocity.x * dt +
-                0.5 * body.acceleration.x * dt * dt,
-            y:
-                body.position.y +
-                body.velocity.y * dt +
-                0.5 * body.acceleration.y * dt * dt,
-        });
-        body.updateVelocity({
-            x: body.velocity.x + body.acceleration.x * dt,
-            y: body.velocity.y + body.acceleration.y * dt,
-        });
-
+        return {x, y}
     }
 
     private computeGravitationalForce(body1: ICelestialBody, body2: ICelestialBody): number {

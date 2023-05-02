@@ -3,10 +3,10 @@ import {ICelestialBody} from "../Interfaces/ICelestialBody";
 import {RungeKuttaSolver} from "../IntegratorSolvers/RungeKuttaSolver";
 
 export class RungeKuttaMotionStrategy implements IMotionStrategy {
-    constructor(private readonly gravitySimulator: RungeKuttaSolver) {
+    constructor(private readonly solver: RungeKuttaSolver) {
     }
 
     move(body: ICelestialBody, celestialBodies: ICelestialBody[], dt: number): void {
-        this.gravitySimulator.computeAcceleration(body, celestialBodies, dt);
+        this.solver.step(body, celestialBodies, dt);
     }
 }
