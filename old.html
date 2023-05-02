@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solar System Simulation with Runge-Kutta Method</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <style>
+        body,
+        html {
+            position: fixed;
+        }
+
+        * {
+
+            box-sizing: border-box;
+        }
+
+        canvas {
+            border: 1px solid black;
+            background: #000;
+        }
+
+        body {
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        input {
+            margin: 0;
+        }
+
+        .header {
+            padding: 15px;
+            display: flex;
+            background: black;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            font-size: 20px;
+        }
+
+        .header__caption {
+            color: #ffffff;
+        }
+
+        .header__form {
+            flex-grow: 1;
+            display: flex;
+        }
+
+        .header__form * {
+            font-size: 16px;
+            font-family: monospace;
+            margin-right: 3px;
+        }
+
+        .header__form input {
+            padding: 5px 10px;
+        }
+
+        .flex-grow-1 {
+            flex-grow: 1;
+        }
+
+        .control-buttons {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 30px;
+        }
+
+        .control-buttons button {
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 10px 0;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1250px) {
+            .header {
+                display: block;
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .header__caption {
+                display: none;
+            }
+            .control-buttons {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <form class="header__form" onsubmit="return setTimestep(event)">
+        <label for="time_step">
+            <input type="text" id='time_step' placeholder="Time step">
+        </label>
+        <button id='time_step_apply'>Apply</button>
+    </form>
+    <span class="flex-grow-1 header__caption">Press 1...9 to choose planet. Scroll to zoom</span>
+    <span class="header__caption" id='time_execution'></span>
+</header>
+
+<div class='control-buttons'>
+    <button id="zoom_in" value="+">+</button>
+    <button id="zoom_out" value="-">-</button>
+</div>
+
+<canvas id="canvas" width="1200" height="800"></canvas>
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const AU = 1.496e11;  // Astronomical unit, m
+    let scale = 1e21 / AU;
+    const G = 6.67430e-11; // Gravitational constant in m^3 kg^-1 s^-2
+    let dt = 1; // time step
+    let elapsedTimeInDays = 0;
+    let focus = 0; // canvas camera focus, Sun by default
+
+
+    //for mouse events
+    let translate = {x: 0, y: 0};
+    let isDragging = false;
+    let lastDragPoint = {x: 0, y: 0};
+
+
+    let bodies = [
+        {name: "Sun", m: 1.989e30, x: 0, y: 0, vx: 0, vy: 0, radius: 6.9634e8, color: 'yellow'},  // Sun
+        {m: 3.3e23, x: 5.79e10, y: 0, vx: 0, vy: 4.736e4, radius: 2.4397e6, color: 'gray'},  // Mercury
+        {m: 4.87e24, x: 1.082e11, y: 0, vx: 0, vy: 3.502e4, radius: 6.0518e6, color: 'orange'},  // Venus
+        {name: "Earth", m: 5.972e24, x: 1.496e11, y: 0, vx: 0, vy: 2.978e4, radius: 6.371e6, color: 'blue'},  // Earth
+        {name: "Mars", m: 6.39e23, x: 2.279e11, y: 0, vx: 0, vy: 2.407e4, radius: 3.3895e6, color: 'red'},  // Mars
+        {m: 1.898e27, x: 7.786e11, y: 0, vx: 0, vy: 1.307e4, radius: 6.9911e7, color: 'orange'},  // Jupiter
+        {m: 5.683e26, x: 1.433e12, y: 0, vx: 0, vy: 9.690e3, radius: 5.8232e7, color: 'lightblue'},  // Saturn
+        {m: 8.681e25, x: 2.873e12, y: 0, vx: 0, vy: 6.809e3, radius: 2.5362e7, color: 'cyan'},  // Uranus
+        {m: 1.024e26, x: 4.495e12, y: 0, vx: 0, vy: 5.437e3, radius: 2.4622e7, color: 'blue'},  // Ne
+        {
+            name: "Moon",
+            x: 0, // Temporary, will be updated later
+            y: 0, // Temporary, will be updated later
+            vx: 0, // Temporary, will be updated later
+            vy: 0, // Temporary, will be updated later
+            m: 7.342e22,
+            color: "gray",
+            radius: 1.7371e6,
+            distance: 384400000,
+            velocity: 1022
+        },
+        //Marses satellites
+        {
+            name: "Phobos",
+            x: 0, // Temporary, will be updated later
+            y: 0, // Temporary, will be updated later
+            vx: 0, // Temporary, will be updated later
+            vy: 0, // Temporary, will be updated later
+            m: 1.0659e16,
+            color: "brown",
+            radius: 1.1e4,
+            distance: 9376000,
+            velocity: 2138
+        },
+        {
+            name: "Deimos",
+            x: 0, // Temporary, will be updated later
+            y: 0, // Temporary, will be updated later
+            vx: 0, // Temporary, will be updated later
+            vy: 0, // Temporary, will be updated later
+            m: 1.4762e15,
+            color: "lightgray",
+            radius: 6e3,
+            distance: 23463200,
+            velocity: 1351
+        }
+
+// Jupiter's satellites
+//         {
+//             name: "Io",
+//             x: 0, // Temporary, will be updated later
+//             y: 0, // Temporary, will be updated later
+//             vx: 0, // Temporary, will be updated later
+//             vy: 0, // Temporary, will be updated later
+//             m: 8.93e22,
+//             color: "yellow",
+//             radius: 1.821e6,
+//             distance: 9376000,
+//             velocity: 2138
+//         },
+//         {
+//             name: "Europa",
+//             x: 0, // Temporary, will be updated later
+//             y: 0, // Temporary, will be updated later
+//             vx: 0, // Temporary, will be updated later
+//             vy: 0, // Temporary, will be updated later
+//             m: 4.80e22,
+//             color: "white",
+//             radius: 1.560e6,
+//         },
+// // ... (Add more Jupiter satellites if desired)
+//
+// // Saturn's satellites
+//         {
+//             name: "Titan",
+//             x: 0, // Temporary, will be updated later
+//             y: 0, // Temporary, will be updated later
+//             vx: 0, // Temporary, will be updated later
+//             vy: 0, // Temporary, will be updated later
+//             m: 1.345e23,
+//             color: "orange",
+//             radius: 2.575e6,
+//         },
+// // ... (Add more Saturn satellites if desired)
+//
+// // Uranus's satellites
+//         {
+//             name: "Titania",
+//             x: 0, // Temporary, will be updated later
+//             y: 0, // Temporary, will be updated later
+//             vx: 0, // Temporary, will be updated later
+//             vy: 0, // Temporary, will be updated later
+//             m: 3.49e21,
+//             color: "gray",
+//             radius: 788.4e3,
+//         },
+// // ... (Add more Uranus satellites if desired)
+//
+// // Neptune's satellites
+//         {
+//             name: "Triton",
+//             x: 0, // Temporary, will be updated later
+//             y: 0, // Temporary, will be updated later
+//             vx: 0, // Temporary, will be updated later
+//             vy: 0, // Temporary, will be updated later
+//             m: 2.14e22,
+//             color: "lightblue",
+//             radius: 1.353e6,
+
+        // }
+// ... (Add more Neptune satellites if desired)
+
+
+    ];
+
+    function addSatellite(planetName, satelliteName) {
+        const planet = bodies.find(body => body.name === planetName);
+        const satellite = bodies.find(body => body.name === satelliteName);
+
+        satellite.x = planet.x + satellite.distance;
+        satellite.y = planet.y;
+        satellite.vx = planet.vx;
+        satellite.vy = planet.vy + satellite.velocity;
+    }
+
+    addSatellite('Earth', 'Moon')
+    addSatellite('Mars', 'Phobos')
+    addSatellite('Mars', 'Deimos')
+    //
+    // addSatellite("Jupiter", "Io", 4.216e8, 17334);
+    // addSatellite("Jupiter", "Europa", 6.709e8, 13740);
+    //
+    // addSatellite("Saturn", "Titan", 1.222e9, 5570);
+    // addSatellite("Uranus", "Titania", 4.36e8, 3645);
+    // addSatellite("Neptune", "Triton", 3.547e8, -4360); // Triton has a retrograde orbit
+
+    function computeAccelerations() {
+        for (const body1 of bodies) {
+            body1.ax = 0;
+            body1.ay = 0;
+
+            for (const body2 of bodies) {
+                if (body1 === body2) continue;
+
+                const dx = body2.x - body1.x;
+                const dy = body2.y - body1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const force = G * body1.m * body2.m / (distance * distance);
+                const ax = force * dx / (distance * body1.m);
+                const ay = force * dy / (distance * body1.m);
+
+                body1.ax += ax;
+                body1.ay += ay;
+            }
+        }
+    }
+
+    function updatePositions() {
+        for (const body of bodies) {
+            body.x += body.vx * dt + 0.5 * body.ax * dt * dt;
+            body.y += body.vy * dt + 0.5 * body.ay * dt * dt;
+        }
+    }
+
+    function updateVelocities() {
+        for (const body of bodies) {
+            body.vx += body.ax * dt;
+            body.vy += body.ay * dt;
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        // ctx.translate(canvas.width / 2, canvas.height / 2);
+
+        let translateX = (canvas.width / 2 - bodies[focus].x / scale) + translate.x;
+        let translateY = (canvas.height / 2 - bodies[focus].y / scale) + translate.y;
+
+        console.log(translateX, translateY);
+
+        ctx.translate(translateX, translateY);
+
+
+        for (const body of bodies) {
+            let radius = body.radius / scale;
+            ctx.beginPath();
+            if (radius < 2) {
+                if (body.name === 'Sun') {
+                    radius = 3;
+                } else {
+                    radius = 2;
+                }
+
+            }
+            ctx.arc(body.x / scale, body.y / scale, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = body.color;
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+    function mainLoop(timestamp) {
+        computeAccelerations();
+        updatePositions();
+        updateVelocities();
+        draw();
+
+        elapsedTimeInDays += dt / (60 * 60 * 24);
+        document.getElementById('time_execution').innerText = `Elapsed time: ${elapsedTimeInDays.toFixed(2)} days`;
+
+        requestAnimationFrame(mainLoop);
+    }
+
+    mainLoop();
+
+    canvas.onmousewheel = function (event) {
+        let wheel = event.wheelDelta / 120;//n or -n
+        let zoom = Math.pow(1 + Math.abs(wheel) / 2, wheel > 0 ? 1 : -1);
+
+        scale *= zoom
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    document.addEventListener('keydown', (event) => {
+        if (event.target.tagName.toUpperCase() === 'INPUT') {
+            return;
+        }
+
+        if (event.key >= '1' && event.key <= '9') {
+            focus = parseInt(event.key) - 1;
+            translate.x = 0;
+            translate.y = 0;
+        }
+    });
+
+    function setTimestep(e) {
+        e.preventDefault();
+        let newTimestep = parseInt(document.querySelector('#time_step').value);
+        if (!newTimestep) {
+            return
+        }
+        dt = newTimestep;
+    }
+
+    window.addEventListener('resize', resizeCanvas, false);
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+
+    function handleDrag(dx, dy) {
+        translate.x += dx;
+        translate.y += dy;
+
+        render();
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        ctx.translate(translate.x, translate.y);
+
+        for (const body of bodies) {
+            ctx.beginPath();
+            ctx.arc(body.x * scale, body.y * scale, body.radius * scale, 0, 2 * Math.PI);
+            ctx.fillStyle = body.color;
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+    document.addEventListener("mousedown", (event) => {
+        isDragging = true;
+        lastDragPoint.x = event.clientX;
+        lastDragPoint.y = event.clientY;
+        canvas.style.cursor = 'grab'
+    });
+
+    document.addEventListener("mousemove", (event) => {
+        if (!isDragging) return;
+
+        const dx = event.clientX - lastDragPoint.x;
+        const dy = event.clientY - lastDragPoint.y;
+
+        handleDrag(dx, dy);
+
+        lastDragPoint.x = event.clientX;
+        lastDragPoint.y = event.clientY;
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+        canvas.style.cursor = 'initial'
+
+    });
+
+    document.addEventListener("mouseleave", () => {
+        isDragging = false;
+    });
+
+    document.addEventListener("touchstart", (event) => {
+        if (event.touches.length !== 1) return;
+
+        isDragging = true;
+        lastDragPoint.x = event.touches[0].clientX;
+        lastDragPoint.y = event.touches[0].clientY;
+
+        event.preventDefault();
+    });
+
+    document.addEventListener("touchmove", (event) => {
+        if (!isDragging || event.touches.length !== 1) return;
+
+        const dx = event.touches[0].clientX - lastDragPoint.x;
+        const dy = event.touches[0].clientY - lastDragPoint.y;
+
+        handleDrag(dx, dy);
+
+        lastDragPoint.x = event.touches[0].clientX;
+        lastDragPoint.y = event.touches[0].clientY;
+
+        event.preventDefault();
+    });
+
+    document.addEventListener("touchend", () => {
+        document.body.style.cursor = 'initi';
+
+        isDragging = false;
+    });
+
+    //zoom controls
+    document.querySelectorAll('.control-buttons button').forEach(element => {
+        element.addEventListener('click', event => {
+            switch (event.target.value) {
+
+                case '+':
+                    scale *= 0.5;
+                    break;
+                case '-':
+                    scale *= 2;
+                    break;
+            }
+
+        })
+    })
+
+    document.ontouchmove = function (event) {
+        event.preventDefault();
+    }
+
+    resizeCanvas();
+</script>
+</body>
+</html>

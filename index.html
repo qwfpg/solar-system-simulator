@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="header">
+    <label for="time_step" class="header__form">
+        <input type="text" id='time_step' placeholder="Time step">
+        <button id='time_step_apply'>Apply</button>
+    </label>
+    <span class="flex-grow-1 header__caption">Press 1...9 to choose planet. Scroll to zoom</span>
+    <span class="header__caption" id='time_execution'></span>
+</header>
+
+<div class='control-buttons'>
+    <button id="zoom_in" value="+">+</button>
+    <button id="zoom_out" value="-">-</button>
+</div>
+
+<canvas width="1600" id="canvas" height="800"></canvas>
+<script type="module" src="dist/index.js"></script>
+</body>
+</html>
