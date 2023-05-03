@@ -16,22 +16,9 @@ const simulator = new Simulator(
     celestialBodyFactory.create(),
     canvas,
 );
-simulator.run();
-
-window.addEventListener('resize', resizeCanvas, false);
-
-function resizeCanvas() {
-    canvasHTML.width = window.innerWidth;
-    canvasHTML.height = window.innerHeight;
-}
-
-resizeCanvas()
-
-const zoomInButton = <HTMLElement>document.querySelector('#zoom-in');
-const zoomOutButton = <HTMLElement>document.querySelector('#zoom-out');
-const elapsedTimeElement = <HTMLElement>document.querySelector('#elapsed-time');
-
-const controller = new SimulatorController(simulator, zoomInButton, zoomOutButton, elapsedTimeElement);
+const controller = new SimulatorController(simulator);
 simulator.setOnSimulationUpdate((elapsedTime: number) => {
     controller.updateElapsedTime(elapsedTime);
 });
+
+simulator.run();

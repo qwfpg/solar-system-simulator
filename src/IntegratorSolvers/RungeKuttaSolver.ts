@@ -12,7 +12,6 @@ export class RungeKuttaSolver {
         body.updateAcceleration(acceleration)
         body.updatePosition(position);
         body.updateVelocity(velocity);
-
     }
 
     private computePosition(body: ICelestialBody, dt: number): IVector {

@@ -4,14 +4,12 @@ import {IVector} from "./Interfaces/IVector";
 import {IMotionStrategy} from "./Interfaces/IMotionStrategy";
 
 export class Simulator {
-    readonly G: number = 6.67430e-11;
     private elapsedTime: number = 0;
-    private _translate: IVector = {x: 0, y: 0};
-    public _lastDragPoint: IVector = {x: 0, y: 0};
+    private translate: IVector = {x: 0, y: 0};
     public dt: number = 3600;
     public focus: number = 0;
     public scale: number = 1e10;
-    private onSimulationUpdate;
+    private onSimulationUpdate: (elapsedTime: number) => void;
 
     constructor(
         private readonly motionStrategy: IMotionStrategy,
@@ -27,7 +25,7 @@ export class Simulator {
             }
             this.canvas.draw(
                 this.bodies,
-                this.calculateCanvasTranslate(),
+                this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.scale),
                 this.scale
             );
             this.calculateExecutionTime();
@@ -40,7 +38,7 @@ export class Simulator {
         }
         this.canvas.draw(
             this.bodies,
-            this.calculateCanvasTranslate(),
+            this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.scale),
             this.scale
         );
         loop();
@@ -54,12 +52,17 @@ export class Simulator {
         this.elapsedTime += this.dt / (60 * 60 * 24);
     }
 
-    private calculateCanvasTranslate(): IVector {
+    private calculateCanvasTranslate(
+        focusIndex: number,
+        bodies: ICelestialBody[],
+        translate: IVector,
+        scale: number
+    ): IVector {
         const canvasDimensions: IVector = this.canvas.getDimensions();
 
         return {
-            x: (canvasDimensions.x / 2 - this.bodies[this.focus].position.x / this.scale) + this._translate.x,
-            y: (canvasDimensions.y / 2 - this.bodies[this.focus].position.y / this.scale) + this._translate.y
+            x: (canvasDimensions.x / 2 - bodies[focusIndex].position.x / scale) + translate.x,
+            y: (canvasDimensions.y / 2 - bodies[focusIndex].position.y / scale) + translate.y
         }
     }
 }
