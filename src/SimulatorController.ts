@@ -35,7 +35,7 @@ export class SimulatorController {
     }
 
     private handleZoom(zoomFactor: number): void {
-        this.simulator.scale *= zoomFactor;
+        this.simulator.canvas.scale *= zoomFactor;
     }
 
     private handleFocusChange(focusIndex: number): void {

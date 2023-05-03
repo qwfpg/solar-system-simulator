@@ -8,13 +8,12 @@ export class Simulator {
     private translate: IVector = {x: 0, y: 0};
     public dt: number = 3600;
     public focus: number = 0;
-    public scale: number = 1e10;
     private onSimulationUpdate: (elapsedTime: number) => void;
 
     constructor(
         private readonly motionStrategy: IMotionStrategy,
         private readonly bodies: ICelestialBody[],
-        private readonly canvas: ICanvas,
+        public readonly canvas: ICanvas,
     ) {
     }
 
@@ -25,8 +24,8 @@ export class Simulator {
             }
             this.canvas.draw(
                 this.bodies,
-                this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.scale),
-                this.scale
+                this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.canvas.scale),
+                this.canvas.scale
             );
             this.calculateExecutionTime();
 
@@ -38,8 +37,8 @@ export class Simulator {
         }
         this.canvas.draw(
             this.bodies,
-            this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.scale),
-            this.scale
+            this.calculateCanvasTranslate(this.focus, this.bodies, this.translate, this.canvas.scale),
+            this.canvas.scale
         );
         loop();
     }
