@@ -1,11 +1,11 @@
+import {IVector} from "./IVector";
+
 export interface ICelestialBodyParameters {
-    name: string,
-    m: number,
-    x: number;
-    y: number;
-    vx: number,
-    vy: number;
-    radius: number,
-    minRadius?: number
-    color: string
+    _name: string,
+    _mass: number,
+    _position: IVector
+    _velocity: IVector
+    _radius: number,
+    _minRadius?: number
+    _color: string
 }

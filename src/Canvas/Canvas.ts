@@ -1,6 +1,7 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
 import {IVector} from "../Interfaces/IVector";
 import {ICanvas} from "../Interfaces/ICanvas";
+import {DrawableScalable} from "../base/DrawableScalable";
 
 export class Canvas implements ICanvas {
     public scale: number = 1e10;
@@ -13,32 +14,28 @@ export class Canvas implements ICanvas {
     }
 
     public draw(
-        bodies: ICelestialBody[],
+        bodies: (ICelestialBody & DrawableScalable)[],
         focus: number,
     ): void {
-
         const canvasTranslate = this.calculateCanvasTranslate(bodies, focus);
-        this.clearCanvas();
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.save();
         this.context.translate(canvasTranslate.x, canvasTranslate.y)
 
         for (const body of bodies) {
-            let radius = body.radius / this.scale;
-            if (radius < 1) {
-                radius = 1;
-            }
-            this.context.beginPath();
-            this.context.arc(body.position.x / this.scale, body.position.y / this.scale, radius, 0, 2 * Math.PI);
-            this.context.fillStyle = body.color;
-            this.context.fill();
+            this.drawBody(body);
         }
         this.context.restore();
     }
 
-    private clearCanvas() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    private
+    drawBody(body: (ICelestialBody & DrawableScalable)) {
+        const position = body.scaleVector(body.position, this.scale);
+        const radius = body.scaleValue(body.radius, this.scale);
 
+        body.draw(this.context, position, radius);
+    }
     private calculateCanvasTranslate(bodies: ICelestialBody[], focus: number): IVector {
         const {width, height} = this.canvas;
 

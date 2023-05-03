@@ -1,35 +1,33 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
 import {IVector} from "../Interfaces/IVector";
 import {ICelestialBodyParameters} from "../Interfaces/ICelestialBodyParameters";
+import {DrawableScalable} from "../base/DrawableScalable.js";
 
-export class CelestialBody implements ICelestialBody {
-    private readonly _velocity: IVector;
-    private readonly _position: IVector;
-    private readonly _acceleration?: IVector;
-    private readonly _name: string;
-    private readonly _mass: number;
-    private readonly _radius: number;
-    private readonly _color: string;
+export class CelestialBody extends DrawableScalable implements ICelestialBody {
+
     scale: number;
 
-    constructor(parameters: ICelestialBodyParameters) {
-        this._velocity = {
-            x: parameters.vx,
-            y: parameters.vy
-        };
-        this._position = {
-            x: parameters.x,
-            y: parameters.y
+    constructor(
+        private readonly _velocity: IVector,
+        private readonly _position: IVector,
+        private readonly _name: string,
+        private readonly _mass: number,
+        private readonly _radius: number,
+        private readonly _color: string,
+        private readonly _acceleration: IVector = {x:0, y:0},
+
+    ) {
+        super();
+    }
+
+    draw(context: CanvasRenderingContext2D, position: IVector, radius: number) {
+        if (radius < 2) {
+            radius = 2;
         }
-        ;
-        this._acceleration = {
-            x: 0,
-            y: 0
-        };
-        this._mass = parameters.m;
-        this._radius = parameters.radius;
-        this._color = parameters.color;
-        this._name = parameters.name;
+        if (this.name === 'Sun') {
+            radius = 4;
+        }
+        super.draw(context, position, radius);
     }
 
     public updateAcceleration(acceleration: IVector): void {
