@@ -8,7 +8,6 @@ export interface ICelestialBody {
     mass: number;
     radius: number;
     color: string;
-    scale: number;
 
     updatePosition(position: IVector): void
     updateAcceleration(acceleration: IVector): void;

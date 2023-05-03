@@ -1,12 +1,8 @@
 import {ICelestialBody} from "../Interfaces/ICelestialBody";
 import {IVector} from "../Interfaces/IVector";
-import {ICelestialBodyParameters} from "../Interfaces/ICelestialBodyParameters";
 import {DrawableScalable} from "../base/DrawableScalable.js";
 
 export class CelestialBody extends DrawableScalable implements ICelestialBody {
-
-    scale: number;
-
     constructor(
         private readonly _velocity: IVector,
         private readonly _position: IVector,
@@ -14,8 +10,7 @@ export class CelestialBody extends DrawableScalable implements ICelestialBody {
         private readonly _mass: number,
         private readonly _radius: number,
         private readonly _color: string,
-        private readonly _acceleration: IVector = {x:0, y:0},
-
+        private readonly _acceleration: IVector = {x: 0, y: 0},
     ) {
         super();
     }
@@ -65,11 +60,12 @@ export class CelestialBody extends DrawableScalable implements ICelestialBody {
         return this._velocity;
     }
 
+    get acceleration(): IVector {
+        return this._acceleration;
+    }
+
     get position(): IVector {
         return this._position;
     }
 
-    get acceleration(): IVector {
-        return this._acceleration;
-    }
 }
