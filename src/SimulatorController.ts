@@ -5,6 +5,7 @@ export class SimulatorController {
     private zoomInButton: HTMLElement;
     private zoomOutButton: HTMLElement;
     private elapsedTimeElement: HTMLElement;
+    private timeStepInput: HTMLElement;
 
     constructor(
         private readonly simulator: Simulator,
@@ -13,6 +14,7 @@ export class SimulatorController {
         this.zoomInButton = document.querySelector(".control-buttons button[value='+']");
         this.zoomOutButton = document.querySelector(".control-buttons button[value='-']");
         this.elapsedTimeElement = document.querySelector('#elapsed-time')
+        this.timeStepInput = document.querySelector('#time_step_input');
 
         this.handleResize();
         this.addEventListeners();
@@ -36,9 +38,5 @@ export class SimulatorController {
 
     private handleZoom(zoomFactor: number): void {
         this.simulator.canvas.scale *= zoomFactor;
-    }
-
-    private handleFocusChange(focusIndex: number): void {
-        this.simulator.focus = focusIndex;
     }
 }
