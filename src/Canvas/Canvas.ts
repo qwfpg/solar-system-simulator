@@ -17,7 +17,7 @@ export class Canvas implements ICanvas {
         bodies: (ICelestialBody & DrawableScalable)[],
         focus: number,
     ): void {
-        const canvasTranslate = this.calculateCanvasTranslate(bodies, focus);
+        const canvasTranslate = this.calculateCanvasTranslate(bodies[focus]);
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.context.save();
@@ -36,12 +36,13 @@ export class Canvas implements ICanvas {
 
         body.draw(this.context, position, radius);
     }
-    private calculateCanvasTranslate(bodies: ICelestialBody[], focus: number): IVector {
+    private calculateCanvasTranslate(focusedBody: (ICelestialBody & DrawableScalable)): IVector {
         const {width, height} = this.canvas;
+        const focusedPosition = focusedBody.scaleVector(focusedBody.position, this.scale);
 
         return {
-            x: (width / 2 - bodies[focus].position.x / this.scale) + this.translate.x,
-            y: (height / 2 - bodies[focus].position.y / this.scale) + this.translate.y
+            x: (width / 2 - focusedPosition.x) + this.translate.x,
+            y: (height / 2 - focusedPosition.y) + this.translate.y
         }
     }
 }
