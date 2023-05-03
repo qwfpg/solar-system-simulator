@@ -13,21 +13,19 @@ export class CelestialBody implements ICelestialBody {
     scale: number;
 
     constructor(parameters: ICelestialBodyParameters) {
-        const velocity: IVector = {
+        this._velocity = {
             x: parameters.vx,
             y: parameters.vy
         };
-        const position: IVector = {
+        this._position = {
             x: parameters.x,
             y: parameters.y
         }
-        const acceleration: IVector = {
+        ;
+        this._acceleration = {
             x: 0,
             y: 0
         };
-        this._velocity = velocity;
-        this._position = position;
-        this._acceleration = acceleration;
         this._mass = parameters.m;
         this._radius = parameters.radius;
         this._color = parameters.color;

@@ -4,6 +4,7 @@ import {ICanvas} from "../Interfaces/ICanvas";
 
 export class Canvas implements ICanvas {
     public scale: number = 1e10;
+    private translate: IVector = {x: 0, y: 0};
 
     constructor(
         private readonly canvas: HTMLCanvasElement,
@@ -11,20 +12,16 @@ export class Canvas implements ICanvas {
     ) {
     }
 
-    public getDimensions(): IVector {
-        return {
-            x: this.canvas.width,
-            y: this.canvas.height
-        }
-    }
-
     public draw(
         bodies: ICelestialBody[],
-        translate: IVector,
+        focus: number,
     ): void {
+
+        const canvasTranslate = this.calculateCanvasTranslate(bodies, focus);
         this.clearCanvas();
         this.context.save();
-        this.context.translate(translate.x, translate.y)
+        this.context.translate(canvasTranslate.x, canvasTranslate.y)
+
         for (const body of bodies) {
             let radius = body.radius / this.scale;
             if (radius < 1) {
@@ -40,5 +37,14 @@ export class Canvas implements ICanvas {
 
     private clearCanvas() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    private calculateCanvasTranslate(bodies: ICelestialBody[], focus: number): IVector {
+        const {width, height} = this.canvas;
+
+        return {
+            x: (width / 2 - bodies[focus].position.x / this.scale) + this.translate.x,
+            y: (height / 2 - bodies[focus].position.y / this.scale) + this.translate.y
+        }
     }
 }

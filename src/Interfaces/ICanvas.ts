@@ -6,9 +6,6 @@ export interface ICanvas {
 
     draw(
         bodies: ICelestialBody[],
-        translate: IVector,
-        scale: number
+        focus: number
     ): void;
-
-    getDimensions(): IVector
 }
