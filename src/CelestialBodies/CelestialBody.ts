@@ -16,12 +16,11 @@ export class CelestialBody extends DrawableScalable implements ICelestialBody {
     }
 
     draw(context: CanvasRenderingContext2D, position: IVector, radius: number) {
-        if (radius < 2) {
-            radius = 2;
+        //todo: move to draw strategy
+        if (radius < 4) {
+            radius = this.name === 'Sun' ? 4 : 2;
         }
-        if (this.name === 'Sun') {
-            radius = 4;
-        }
+
         super.draw(context, position, radius);
     }
 
@@ -67,5 +66,4 @@ export class CelestialBody extends DrawableScalable implements ICelestialBody {
     get position(): IVector {
         return this._position;
     }
-
 }
